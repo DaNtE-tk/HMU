@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>SMART CONTRACT</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.7/web3.min.js" integrity="sha512-yAmmVkOXqtDZRaueLdmLwMB67JtaRtjFzQGiAiJKvLiFlDvq4Tzm5R6uLcOMyvPRQlXpYHdYxc5IbiCwuquhUw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  </head>
+  <style media="screen">
+
+  </style>
+  <body>
+    <div id="app">
+      <!-- Heading -->
+      <div class="container heading">
+        <h1>#HMU ❤</h1>
+      </div>
+
+      <div class="element">
+        <button onclick="connectMetaMask()">Connect to MetaMask</button>
+        <p id="accountNumber">Connection Status: MetaMask not connected!</p>
+      </div>
+
+
+
+      <div class="element">
+        <hr>
+        <button onclick="connectContract()">Connect to Contract</button>
+        <p id="contractStatus">Connection Status: Contract not connected!</p>
+      </div>
+
+
+      <div class="element">
+        <hr>
+        <button onclick="readContract()">Read data from contract</button>
+        <p id="dataArea">Data Log: No Data from the Smart Contract</p>
+      </div>
+
+
+      <div class="element">
+        <hr>
+        <button onclick="changeWord()">Change Data on the smart contract</button>
+        <br>
+        <a id="target" href="#">
+          <span></span><span></span><span></span><span></span>
+          <input type="text" id="inputArea">
+        </a>
+        <br>
+      </div>
+
+    </div>
+
+    <script>
+
+    //Logic Area
+    let account;
+      const connectMetaMask = async () =>{
+        if(window.ethereum!=="undefined"){
+          const accounts = await ethereum.request({method:"eth_requestAccounts"});
+          account = accounts[0];
+          document.getElementById("accountNumber").innerHTML = 'Account is: '+account;
+        }
+      }
+
+      const connectContract = async() =>{
+        const ABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "newMessage",
+				"type": "string"
+			}
+		],
+		"name": "update",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "message",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+
+    const Address = "0x954cc60fAfbFb3Ff76c4bfA4C6368CA41172eb06";
+    window.web3 = await new Web3(window.ethereum);
+    window.contract = await new window.web3.eth.Contract(ABI,Address);
+    document.getElementById("contractStatus").innerHTML = "Connection Status: Smart Contract Connected!";
+    }
+
+    const readContract = async ()=>{
+      const data = await window.contract.methods.message().call();
+      console.log(data);
+      document.getElementById("dataArea").innerHTML = "Word Received: "+data;
+    }
+
+    const changeWord = async () =>{
+      const newEntry = document.getElementById("inputArea").value;
+      console.log(newEntry);
+      await window.contract.methods.update(newEntry).send({from:account});
+    }
+
+    </script>
+  </body>
+</html>
